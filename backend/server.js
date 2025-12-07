@@ -7,6 +7,7 @@ const session = require('express-session');
 
 const PORT = process.env.PORT || 5000;  // Use Railway's PORT
 const app = express();
+const debug = 1;
 
 async function connectMongoDB() {
   try {
