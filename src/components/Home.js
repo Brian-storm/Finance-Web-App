@@ -22,13 +22,6 @@ function Home() {
             });
     }, []);
 
-    useEffect(() => {
-        if (selectedVenues.length > 0) {
-
-        }
-    }, [selectedVenues])
-
-
 
     return (
         <div className="container mt-4">
