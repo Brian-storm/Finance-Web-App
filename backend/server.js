@@ -38,14 +38,33 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Connection error:'));
 
 
-// Development Stage:
-const debug = 1;  // used to toggle console.log for debugging
+// CORS Configuration - ALWAYS ENABLE
+const cors = require('cors');
 
-let development = 1;  // To delete when production
-if (development) {
-    const cors = require('cors');
-    app.use(cors());
-}
+// Configure CORS for both development and production
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'http://localhost:3000',  // Local development
+      'https://financedatahk.netlify.app',
+    ];
+    
+    if (allowedOrigins.includes(origin) || origin.includes('netlify.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
@@ -421,37 +440,3 @@ app.post('/api/updateLocation', async (req, res) => {
     }
 });
 
-
-
-
-
-// As Example || For Testing Purpose
-// CRUD of Event
-Event.find({})
-    .then((data) => {
-        console.log(data);
-    })
-    .catch((err) => {
-        console.log("failed to read");
-    });
-
-// Search for quota >= 500
-Event.find({ quota: { $gte: 500 } })
-    .then((data) => console.log("the event with quota more than 500:", data))
-    .catch((error) => console.log(error));
-
-// update the location if quota >= 500
-Event.findOneAndUpdate(
-    { quota: { $gte: 500 } },
-    { location: "Large Conference Room" },
-    { new: true },
-)
-    .then((data) => { console.log('the updated data is:', data) })
-    .catch((error) => console.log(error));
-
-// delete the event if quota >= 500
-Event.findOneAndDelete(
-    { quota: { $gte: 500 } }
-)
-    .then((data) => { console.log('the deleted data is:', data) })
-    .catch((error) => console.log(error));
