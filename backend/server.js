@@ -275,7 +275,7 @@ app.get('/', (req, res) => {
 });
 
 // Check Authentication
-app.get('/api/check-auth', (req, res) => {
+app.get('https://fina-web-app-production.up.railway.app/api/check-auth', (req, res) => {
     if (req.session && req.session.userId) {
         res.json({
             userId: req.session.userId,
@@ -291,7 +291,7 @@ app.get('/api/check-auth', (req, res) => {
 })
 
 // Signup
-app.post('/api/signup', async (req, res) => {
+app.post('https://fina-web-app-production.up.railway.app/api/signup', async (req, res) => {
     try {
         const username = req.body.username;
         const password = req.body.password;
@@ -335,7 +335,7 @@ app.post('/api/signup', async (req, res) => {
 });
 
 // Login
-app.post('/api/login', async (req, res) => {
+app.post('https://fina-web-app-production.up.railway.app/api/login', async (req, res) => {
     try {
         const username = req.body.username;
         const password = req.body.password;
@@ -383,7 +383,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 // Logout
-app.post('/api/logout', (req, res) => {
+app.post('https://fina-web-app-production.up.railway.app/api/logout', (req, res) => {
     // Destroy session
     req.session.destroy((err) => {
         if (err) {
