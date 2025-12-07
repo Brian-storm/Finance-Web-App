@@ -12,7 +12,7 @@ function Home() {
                 console.log(data);
                 setResponse(data);
                 if (response) {
-                    console.log("Response to be handled...")
+                    console.log("Response to be handled...", response)
                 }
 
             })
