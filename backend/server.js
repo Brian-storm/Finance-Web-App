@@ -12,9 +12,9 @@ async function connectMongoDB() {
   try {
     // Get connection string from environment or use Railway's default
     let mongoURI = process.env.MONGO_URL || 
-                    'mongodb://mongo:UNuiBIEfzaAaKikXLqwlhqVKCxQwzdZR@mongodb.railway.internal:27017/test';
+                    'mongodb://mongo:XMwUqCddfZIKPHcVaTSPLrQkYBLNnPgT@hopper.proxy.rlwy.net:35144/test?authSource=admin';
     
-    mongoURI = 'mongodb://mongo:UNuiBIEfzaAaKikXLqwlhqVKCxQwzdZR@mongodb.railway.internal:27017/test?authSource=admin';
+    // mongoURI = 'mongodb://mongo:XMwUqCddfZIKPHcVaTSPLrQkYBLNnPgT@mongodb.railway.internal:27017?authSource=admin';
     console.log('Connecting to MongoDB...');
     
     await mongoose.connect(mongoURI, {
