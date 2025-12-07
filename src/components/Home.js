@@ -1,25 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 function Home() {
-    const [response, setResponse] = useState([]);
 
     useEffect(() => {
         console.log("running...at Home");
-        fetch("/")
-            .then(response => response.json())
-            .then(data => {
-                console.log("fetched");
-                console.log(data);
-                setResponse(data);
-                if (response) {
-                    console.log("Response to be handled...", response)
-                }
-
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                setResponse([]);
-            });
+        
     }, []);
 
 
