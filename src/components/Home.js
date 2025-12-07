@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 
 function Home() {
     const [response, setResponse] = useState([]);
-    const [selectedVenues, setSelectedVenues] = useState([]);
 
     useEffect(() => {
         console.log("running...at Home");
@@ -12,6 +11,9 @@ function Home() {
                 console.log("fetched");
                 console.log(data);
                 setResponse(data);
+                if (response) {
+                    console.log("Response to be handled...")
+                }
 
             })
             .catch(error => {
