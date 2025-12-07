@@ -3,16 +3,37 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const { XMLParser } = require('fast-xml-parser');
-const session = require('express-session')
+const session = require('express-session');
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;  // Use Railway's PORT
 const app = express();
 
+async function connectMongoDB() {
+  try {
+    // Get connection string from environment or use Railway's default
+    const mongoURI = process.env.MONGO_URL || 
+                    'mongodb://mongo:UNuiBIEfzaAaKikXLqwlhqVKCxQwzdZR@mongodb.railway.internal:27017/test';
+    
+    console.log('Connecting to MongoDB...');
+    
+    await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    
+    console.log('✅ MongoDB connected');
+    
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error.message);
+  }
+}
+connectMongoDB();
 
-mongoose.connect('mongodb://127.0.0.1:27017/ESTR2106db'); // idk how to do mongodb, need help
+// Optional: Add event listeners
+mongoose.connection.on('error', err => console.error('MongoDB error:', err));
+mongoose.connection.on('disconnected', () => console.log('MongoDB disconnected'));
+
 const db = mongoose.connection;
-
-// Upon connection failure
 db.on('error', console.error.bind(console, 'Connection error:'));
 
 
@@ -57,7 +78,7 @@ const LocationSchema = mongoose.Schema({
         type: String,
     },
     namec: {
-        type:String
+        type: String
     },
     latitude: {
         type: Number,
@@ -100,17 +121,18 @@ app.use(express.static(path.resolve(__dirname, '../public')));
 
 // Session
 app.use(session({
-    secret: 'abc123',
+    secret: process.env.SESSION_SECRET || 'dev-secret-key',
     resave: false,
-    rolling: true,
     saveUninitialized: false,
-    cookie: { 
-        maxAge: 1000 * 60 * 5,  // 5 minutes
+    rolling: true,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 1000 * 60 * 5,
         httpOnly: true,
     }
 }));
 
-// Check Session
+// Keep your checkSession middleware as-is
 const checkSession = (req, res, next) => {
     if (req.session && req.session.userId) {
         req.user = {
@@ -122,6 +144,30 @@ const checkSession = (req, res, next) => {
     next();
 };
 app.use(checkSession);
+
+// app.use(session({
+//     secret: 'abc123',
+//     resave: false,
+//     rolling: true,
+//     saveUninitialized: false,
+//     cookie: { 
+//         maxAge: 1000 * 60 * 5,  // 5 minutes
+//         httpOnly: true,
+//     }
+// }));
+
+// // Check Session
+// const checkSession = (req, res, next) => {
+//     if (req.session && req.session.userId) {
+//         req.user = {
+//             userId: req.session.userId,
+//             username: req.session.username,
+//             role: req.session.role
+//         };
+//     }
+//     next();
+// };
+// app.use(checkSession);
 
 // FetchXML - Fetch data from gov dataset XML link
 async function FetchXML(req, res, next) {
@@ -202,7 +248,7 @@ app.get('/', (req, res) => {
         maxAge: '1000' + "0000000",
         expires: new Date(Date.now() + '3600000')
     });
-    
+
     // Send index.html as response to render web page
     res.sendFile(path.resolve(__dirname, '../public/index.html'));
 });
@@ -254,7 +300,7 @@ app.post('/api/signup', async (req, res) => {
                 userId: newUser._id,
                 username: newUser.username,
                 role: newUser.role,
-                permission: newUser.role === "admin"? 7: 1
+                permission: newUser.role === "admin" ? 7 : 1
             }
         });
 
@@ -320,20 +366,20 @@ app.post('/api/logout', (req, res) => {
     // Destroy session
     req.session.destroy((err) => {
         if (err) {
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Logout failed' 
+            return res.status(500).json({
+                success: false,
+                message: 'Logout failed'
             });
         }
-        
+
         // Clear session cookie
         res.clearCookie('connect.sid', {
             path: '/'
         });
-        
-        res.json({ 
-            success: true, 
-            message: 'Logged out' 
+
+        res.json({
+            success: true,
+            message: 'Logged out'
         });
     });
 });
@@ -353,7 +399,7 @@ app.get('/api/fetchEvents', (req, res) => {
 
 app.post('/api/updateLocation', async (req, res) => {
     console.log("Trying to write 10 random venues to db...")
-    
+
     try {
         for (const loc of req.body.selectedVenues) {
             console.log(loc);
@@ -365,9 +411,9 @@ app.post('/api/updateLocation', async (req, res) => {
             });
             await newLocation.save();
         }
-        
+
         res.status(201).send("Successfully updated venues");
-        
+
     } catch (error) {
         console.error("Error:", error);
         res.status(500).send("Failed to update venues");
