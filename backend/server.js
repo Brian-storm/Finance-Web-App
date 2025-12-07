@@ -11,9 +11,10 @@ const app = express();
 async function connectMongoDB() {
   try {
     // Get connection string from environment or use Railway's default
-    const mongoURI = process.env.MONGO_URL || 
+    let mongoURI = process.env.MONGO_URL || 
                     'mongodb://mongo:UNuiBIEfzaAaKikXLqwlhqVKCxQwzdZR@mongodb.railway.internal:27017/test';
     
+    mongoURI = 'mongodb://mongo:UNuiBIEfzaAaKikXLqwlhqVKCxQwzdZR@mongodb.railway.internal:27017/test?authSource=admin';
     console.log('Connecting to MongoDB...');
     
     await mongoose.connect(mongoURI, {
